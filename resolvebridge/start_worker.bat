@@ -1,0 +1,1 @@
+py -m celery -A proxy_encoder worker --loglevel=info
