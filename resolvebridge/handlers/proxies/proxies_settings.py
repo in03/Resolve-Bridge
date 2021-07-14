@@ -4,7 +4,8 @@ Submodules have their own adjacent settings files.
 # Always need an outer dict
 defaults = dict(
 
-    proxies = dict(
+    encode_settings = dict(
+
         vid_codec = "dnxhd",
         h_res = 1280,
         v_res = 720,
@@ -13,8 +14,15 @@ defaults = dict(
         misc_args = ["-hide_banner", "-stats", "-loglevel error"],
         ext = ".mxf",
         overwrite_mode = "increment", #keep, skip
+
+    ),
+
+    audio = dict(
         audio_codec = "pcm_s16le",
         audio_samplerate = 48000,
+    ),
+
+    handler_settings = dict(
         handle_orphans = False,
         handle_already_linked = True,
         handle_existing_unlinked = True,

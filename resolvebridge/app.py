@@ -1,16 +1,30 @@
 #!/usr/bin/env python
 
+# We have some hefty modules,
+# so let's give users notice
+
+import sys
+
+from colorama import Fore, init
+from pyfiglet import Figlet
+
+init(autoreset=True)
+
+f = Figlet()
+print(f.renderText("Resolve Bridge"))
+sys.stdout.write(f"{Fore.YELLOW}Loading...")
+sys.stdout.flush()
+
+#########################################################
+
 import os
 import pathlib
-import sys
 import time
 import tkinter
 import tkinter.messagebox
 import traceback
 
 from celery import group
-from colorama import Fore, init
-from pyfiglet import Figlet
 from win10toast import ToastNotifier
 
 from resolvebridge.common import constants, python_get_resolve
@@ -25,7 +39,6 @@ from resolvebridge.celery_worker import celery_settings
 # from resolvebridge.common.python_get_resolve import get_resolve
 # from resolvebridge.handlers.proxies import link
 
-
 # Initialise class
 settings = SettingsManager(constants.USER_PREFS_PATH)
 
@@ -36,8 +49,16 @@ settings.ingest(celery_settings.defaults)
 
 prefs = settings.get()
 
+####################################################################
+
+# Clear the loading message
+sys.stdout.write("\r")
+sys.stdout.flush()
+print(f"{Fore.GREEN}Done!         ")
+
 debugmode = prefs['app']['debug']
 print(debugmode)
+
 sys.exit()
 some_action_taken = False
 

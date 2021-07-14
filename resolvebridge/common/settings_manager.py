@@ -4,7 +4,7 @@ import configparser
 import logging
 import os
 
-# from typing import Union
+from typing import Union
 from attrdict import AttrDict
 
 from resolvebridge.common import constants, helpers
@@ -15,12 +15,9 @@ from resolvebridge.common import constants, helpers
 # or by ingest, since it's unlikely users will ingest conflicting values
 # or if they do it will be on purpose.
 
-MANAGER_DEBUG = False
-if MANAGER_DEBUG:
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(level=logging.WARN)
-print()
+# Change this to debug, info or warn (default)
+# For debugging purposes
+logging.basicConfig(level=logging.WARN)
 
 
 class SettingsManager():
@@ -53,6 +50,7 @@ class SettingsManager():
 
         # Init settings var
         self.settings = {}
+        self.prefs = self._read_prefs()
 
         # Ensure settings directory exists
         if not os.path.exists(self.dirname):
@@ -69,23 +67,49 @@ class SettingsManager():
         self.logger.debug("Read config file: %s \nData: %s", self.conf_path, prefs)
         return prefs
 
-    def _update_settings(self):
+    def update_settings(self, new_defaults:Union[None, dict]=None):
 
-        prefs = self._read_prefs()
+        prefs = self.prefs
 
-        # For each k:v pair in preferences
-        for pref_k, pref_v in prefs.items():
+        # FIXME: Forgot about the sections.
+        # Temp rename to ease confusion, originally had pref_section as pref_key
+        # Only worked because self.settings.update() was passed whole dict
+        # Maybe better to match by key/val instead of sections?
+
+        # Lol this is a bit silly, we only need one var
+        # But I wrote them backwards
+        if new_defaults is None:
+
+            comp_a = prefs
+            comp_b = self.settings
+
+        else:
+
+            comp_a = new_defaults
+            comp_b = prefs
+
+        # Iterate through all sections (full update)
+        for section, keyval in comp_a.items():
+
+            self.logger.debug("Section: %s", section)
 
             # If key matches, update setting
-            if pref_k in self.settings.keys():
-                self.settings.update({pref_k: pref_v})
+            if section in comp_b.keys():
 
-                self.logger.debug(
-                    "Found matching key: %s in config file."
-                    "Using preferred value: %s", pref_k, pref_v
+                self.logger.info(
+                    "Found matching section in config: '[%s]' Updating.",
+                    section
                 )
 
-        return self._write_prefs()
+                self.settings.update({section: keyval})
+                self._write_prefs()
+
+                self.logger.debug(
+                    "Pulling key-val '[%s]' from section %s in preferences.",
+                    keyval, section
+                )
+
+        return
 
     def _write_prefs(self):
         """ Rewrite updated preferences to file """
@@ -180,28 +204,28 @@ class SettingsManager():
 
         return results
 
-    def ingest(self, source: dict):
+    def ingest(self, new_defaults: dict):
         """ Register provided settings. Any keys that don't exist in the config
         will have their defaults written.
         """
 
-        self.logger.debug("Source provided: %s", source)
+        self.logger.debug("Source provided: %s", new_defaults)
 
         # Check source is valid
-        if not isinstance(source, dict):
+        if not isinstance(new_defaults, dict):
             self.logger.warning("Invalid source type passed! Ignoring")
             return None
 
-        if not self._check_dict(source):
+        if not self._check_dict(new_defaults):
             self.logger.warning("Invalid dict passed! Ignoring")
             return None
 
         # Merge current settings with new source
-        self.settings = dict(**self.settings, **source)
+        self.settings = dict(**self.settings, **new_defaults)
         self.logger.debug("Self settings: %s", self.settings)
 
         # Add default settings to config if missing,
         # Pull preferred settings from config if present
-        self._update_settings()
+        self.update_settings(new_defaults)
 
         return self.settings

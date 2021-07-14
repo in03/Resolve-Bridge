@@ -34,16 +34,6 @@ def get_module_logger(sublogger:str=""):
         caller = __name__
     return logging.getLogger(f"{caller}.{sublogger}")
 
-def write_if_not_exist(filepath):
-    """ Write an empty file if it doesn't exist at location """
-    try:
-        logger.debug("Ensuring file at '%s'", filepath)
-        open(filepath, "w").close()
-
-    except PermissionError:
-        logger.warning("Permission denied accessing: %s", filepath)
-
-
 def get_dict_depth(_dict):
     """ Get dictionary's depth or 'nestedness' """
     if isinstance(_dict, dict):
