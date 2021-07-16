@@ -11,13 +11,9 @@ defaults = dict(
         v_res = 720,
         vid_profile = "dnxhr_sq",
         pix_fmt = "yuv422p",
-        misc_args = ["-hide_banner", "-stats", "-loglevel error"],
+        misc_args = ["-y", "-hide_banner", "-stats", "-loglevel error"],
         ext = ".mxf",
-        overwrite_mode = "increment", #keep, skip
 
-    ),
-
-    audio = dict(
         audio_codec = "pcm_s16le",
         audio_samplerate = 48000,
     ),

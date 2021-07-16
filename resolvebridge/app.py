@@ -3,6 +3,9 @@
 # We have some hefty modules,
 # so let's give users notice
 
+import time
+start_time = time.time()
+
 import sys
 
 from colorama import Fore, init
@@ -19,7 +22,6 @@ sys.stdout.flush()
 
 import os
 import pathlib
-import time
 import tkinter
 import tkinter.messagebox
 import traceback
@@ -33,11 +35,11 @@ from resolvebridge.handlers.proxies import proxies_settings
 
 from resolvebridge import app_settings
 
-# from resolvebridge.celery_worker import tasks as do
+from resolvebridge.celery_worker import tasks as do
 from resolvebridge.celery_worker import celery_settings
-# from resolvebridge.common import constants
-# from resolvebridge.common.python_get_resolve import get_resolve
-# from resolvebridge.handlers.proxies import link
+from resolvebridge.common import constants
+from resolvebridge.common.python_get_resolve import get_resolve
+from resolvebridge.handlers.proxies import link
 
 # Initialise class
 settings = SettingsManager(constants.USER_PREFS_PATH)
@@ -50,11 +52,16 @@ settings.ingest(celery_settings.defaults)
 prefs = settings.get()
 
 ####################################################################
-
 # Clear the loading message
+init_time = round(time.time() - start_time, 2)
+
 sys.stdout.write("\r")
 sys.stdout.flush()
-print(f"{Fore.GREEN}Done!         ")
+
+print(
+    f"{Fore.GREEN}Done!"
+    f"{Fore.CYAN} Loaded imports in {init_time} seconds."
+)
 
 debugmode = prefs['app']['debug']
 print(debugmode)
